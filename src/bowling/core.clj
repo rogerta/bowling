@@ -49,8 +49,10 @@
       (= c 0) 0
       (= c 1) (first rolls)
       (= (first rolls) 10) (apply + (take 3 rolls))  ; strike
-      (= (apply + (take 2 rolls)) 10) (+ 10 (nth rolls 2 0))  ; spare
-      true (apply + (take 2 rolls)))))
+      true (let [sum (apply + (take 2 rolls))]
+            (if (= sum 10)
+              (+ sum (nth rolls 2 0))  ; spare
+              sum)))))
 
 
 (defn build-frames
