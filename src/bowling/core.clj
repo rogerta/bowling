@@ -70,8 +70,9 @@
     ()
     (let [froll (first rolls)]
       (if (= froll 10)
-        (cons (struct Frame froll 0 0) (build-frames (next rolls)))
-        (cons (struct Frame froll (second rolls) 0)
+        (cons (struct Frame froll 0 (frame-score rolls))
+              (build-frames (next rolls)))
+        (cons (struct Frame froll (nth rolls 1 0) (frame-score rolls))
               (build-frames (nthnext rolls 2)))))))
 
 
