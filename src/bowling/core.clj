@@ -68,24 +68,53 @@
   [rolls]
   (if (empty? rolls)
     ()
-    (let [froll (first rolls)]
+    (let [froll (first rolls), fscore (frame-score rolls)]
       (if (= froll 10)
-        (cons (struct Frame froll 0 (frame-score rolls))
+        (cons (struct Frame froll 0 fscore)
               (build-frames (next rolls)))
-        (cons (struct Frame froll (nth rolls 1 0) (frame-score rolls))
+        (cons (struct Frame froll (nth rolls 1 0) fscore)
               (build-frames (nthnext rolls 2)))))))
 
 
-; +---+---+---+
-; |5|2| |/| |X|
-; | 8 | 28| 38|
-; +---+---+---+
+(defn print-frames
+  "Prints frames for the game.
+
+  Args:
+    rolls: A sequence of integers representing rolls.  It is assumed the
+        sequence is valid as given by |is-valid?|.
+  "
+  [rolls]
+  (let [frames (build-frames rolls)]
+    (println)
+    (dorun (map-indexed (fn [i _] (printf "%-4d|" (int i))) frames))
+    (println)
+    (dorun (map (fn [f] (printf "%d  %d|" (:first-pins f) (:second-pins f)))
+                frames))
+    (println)
+    (dorun (map (fn [f] (printf "%3d |" (:score f))) frames))
+    (println)
+    (println)))
+
+
+(def ^:dynamic *rolls* [])
 
 (defn -main
   "Bowling score keeper."
   [& args]
-  (println "Args:" args)
-  (if (is-valid? (map #(Integer/parseInt %) args))
-    (println "Sequence is valid.")
-    (println "Sequence is invalid!")))
+  (println "Welcome to the bowling score keeper.")
+  (println)
+  (while
+    (let [_ (print "Enter # of pins knocked down (Ctrl+D to exit): "),
+          _ (flush),
+          line (read-line),
+          roll (if line (Integer/parseInt line) -1),
+          new-rolls (conj *rolls* roll)]
+      (if (is-valid? new-rolls)
+        (do
+          (def ^:dynamic *rolls* new-rolls)
+          (print-frames *rolls*))
+        (if line
+          (println roll "is an invalid roll.  Please try again.")
+          (println)))
+      line)))
 
