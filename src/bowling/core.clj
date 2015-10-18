@@ -86,7 +86,7 @@
   [rolls]
   (let [frames (build-frames rolls)]
     (println)
-    (dorun (map-indexed (fn [i _] (printf "%-4d|" (int i))) frames))
+    (dorun (map #(printf "%-4d|" %) (range (count frames))))
     (println)
     (dorun (map (fn [f] (printf "%d  %d|" (:first-pins f) (:second-pins f)))
                 frames))
