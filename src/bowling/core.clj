@@ -88,7 +88,7 @@
     (println)
     (dorun (map #(printf "%-4d|" %) (range (count frames))))
     (println)
-    (dorun (map (fn [f] (printf "%d  %d|" (:first-pins f) (:second-pins f)))
+    (dorun (map #(printf "%d  %d|" (:first-pins %) (:second-pins %))
                 frames))
     (println)
     (dorun (map (fn [f] (printf "%3d |" (:score f))) frames))
