@@ -63,7 +63,7 @@
         sequence is valid as given by |is-valid?|.
   Returns:
     A sequence of Frame structures.  The list will be at most 11 frames.
-    An 11th frame is retured only if the 10th is a spare ot strike.
+    An 11th frame is retured only if the 10th is a spare or strike.
   "
   [rolls]
   (if (empty? rolls)
@@ -88,10 +88,9 @@
     (println)
     (dorun (map #(printf "%-4d|" %) (range (count frames))))
     (println)
-    (dorun (map #(printf "%d  %d|" (:first-pins %) (:second-pins %))
-                frames))
+    (dorun (map #(printf "%d  %d|" (:first-pins %) (:second-pins %)) frames))
     (println)
-    (dorun (map (fn [f] (printf "%3d |" (:score f))) frames))
+    (dorun (map #(printf "%3d |" (:score %)) frames))
     (println)
     (println)))
 
