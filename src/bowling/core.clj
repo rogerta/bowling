@@ -151,20 +151,40 @@
   "
   [rolls]
   (let [frames (build-frames rolls)]
-    (println) (print "|")
+    (print "\n|")
     (dorun (map #(printf "%-4d|" (inc %)) (range (count frames))))
 
-    (println) (print "+")
+    (print "\n+")
     (dorun (map #(printf "----+" (inc %)) (range (count frames))))
 
-    (println) (print "|")
+    (print "\n|")
     (dorun (map print-frame frames))
 
-    (println) (print "|")
+    (print "\n|")
     (dorun (map #(printf " %3d|" (:score %)) frames))
 
-    (println)
-    (println)))
+    (println "\n")))
+
+
+(defn- read-roll
+  "Reads a shot from stdin.
+
+  If the user pressed Ctrl+D then (hash-map :roll -1 :line nil) is returned.
+
+  Returns:
+    A map with two elements:
+      :roll a number from 0 to 10.  If there was a problem with the input,
+          -1 is returned.
+      :line the text actually typed by the user, or nil if EOF.
+  "
+  []
+  (print "Enter # of pins knocked down (Ctrl+D to exit): ")
+  (flush)
+  (let [line (read-line)]
+    (try
+      (let [roll (if line (Integer/parseInt line) -1)]
+        (hash-map :roll roll, :line line))
+      (catch Exception e (hash-map :roll -1, :line line)))))
 
 
 (def ^:dynamic *rolls* [])
@@ -172,24 +192,18 @@
 (defn -main
   "Bowling score keeper."
   [& args]
-  (println "Welcome to the bowling score keeper.")
-  (println)
+  (println "Welcome to the bowling score keeper.\n")
   (while
-    (let [_ (print "Enter # of pins knocked down (Ctrl+D to exit): "),
-          _ (flush),
-          line (read-line),
-          roll (if line (Integer/parseInt line) -1),
+    (let [{roll :roll line :line} (read-roll),
           new-rolls (conj *rolls* roll)]
       (if (is-valid? new-rolls)
         (do
           (def ^:dynamic *rolls* new-rolls)
           (print-frames *rolls*))
         (if line
-          (println roll "is an invalid roll.  Please try again.")
-          (println)))
-      ; This is inefficient, as |build-frames| is already called inside of
-      ; |print-frames|.  Should have a way to reuse that.
+          (println line "is an invalid roll.  Please try again.\n")))
+      ; Calling |build-frames| below is inefficent, as it's already called
+      ; inside of |print-frames|.  Should have a way to reuse that.
       (and line (not (game-over? (build-frames *rolls*))))))
-  (println "Great game!")
-  (println))
+  (println "Great game!\n"))
 
