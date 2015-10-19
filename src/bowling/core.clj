@@ -157,16 +157,16 @@
   [rolls]
   (let [frames (build-frames 0 rolls)]
     (print "\n|")
-    (dorun (map #(printf "%-4d|" (inc %)) (range (count frames))))
+    (dorun (map #(printf "%-4d|" (inc %)) (range (min 10 (count frames)))))
 
     (print "\n+")
-    (dorun (map #(printf "----+" (inc %)) (range (count frames))))
+    (dorun (map #(printf "----+" (inc %)) (range (min 10 (count frames)))))
 
     (print "\n|")
     (dorun (map print-frame frames))
 
     (print "\n|")
-    (dorun (map #(printf " %3d|" (:score %)) frames))
+    (dorun (map #(printf " %3d|" (:score %)) (take 10 frames)))
 
     (println "\n")))
 
