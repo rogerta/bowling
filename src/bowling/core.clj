@@ -2,6 +2,15 @@
   (:gen-class))
 
 
+; Represents one frame in a bowling game.
+;
+; :first-pins represents the number of pins knocked down by the first shot.  It
+; can have a value from 0 to 10 inclsive.
+; :second-pins represents the number of pins knocked down by the second shot.
+; It can have a value of 0 to 10 inclusive, or be nil in the case of a partial
+; frame or a strike.
+; :score represents the total score for game at this frame.  It can have a
+; value from 0 to 300.
 (defstruct Frame :first-pins :second-pins :score)
 
 
@@ -27,7 +36,47 @@
       (= c 1) (validate (first rolls))  ; one roll
       (= (first rolls) 10) (is-valid? (next rolls))
       (validate (apply + (take 2 rolls))) (is-valid? (nthnext rolls 2))
-      true false)))
+      :else false)))
+
+
+(defn game-over?
+  "Is the game over?
+
+  A game has 10 frames.  It is over if both shots of the last frame have been
+  played.
+
+  If the last frame is either a spare or a strike, then an 11th frame is
+  possible.  In this case the game is over if the 10th frame is a spare and
+  the first shot of the 11th was played, or if the 10th frame is a strike
+  and both shots of the 11th frame were played.
+
+  Args:
+    frames: A sequence of Frame structs as returned by |build-frames|.
+  Returns:
+    Truthy if the game is over, falsy otherwise.
+  "
+  [frames]
+  (let [c (count frames)]
+    (cond
+      (< c 10) false
+      (= c 10)
+        (let [last-frame (last frames),
+              {f :first-pins s :second-pins} last-frame,
+              is-strike (= f 10),
+              is-spare (and (not= s nil) (= (+ f s) 10))]
+          (if (or is-strike is-spare)
+            false
+            (not= s 0)))
+      :else
+        (let [[second-last-frame last-frame] (take-last 2 frames),
+              {sl-f :first-pins sl-s :second-pins} second-last-frame,
+              is-strike (= sl-f 10),
+              is-spare (and (not= sl-s nil) (= (+ sl-f sl-s) 10))
+              {f :first-pins s :second-pins} last-frame]
+          (cond
+            is-strike (not= s nil)
+            is-spare true
+            :else true)))))  ; in theory, should never get to this line.
 
 
 (defn frame-score
@@ -49,7 +98,7 @@
       (= c 0) 0
       (= c 1) (first rolls)
       (= (first rolls) 10) (apply + (take 3 rolls))  ; strike
-      true (let [sum (apply + (take 2 rolls))]
+      :else (let [sum (apply + (take 2 rolls))]
             (if (= sum 10)
               (+ sum (nth rolls 2 0))  ; spare
               sum)))))
@@ -70,9 +119,9 @@
     ()
     (let [froll (first rolls), fscore (frame-score rolls)]
       (if (= froll 10)
-        (cons (struct Frame froll 0 fscore)
+        (cons (struct Frame froll nil fscore)
               (build-frames (next rolls)))
-        (cons (struct Frame froll (nth rolls 1 0) fscore)
+        (cons (struct Frame froll (nth rolls 1 nil) fscore)
               (build-frames (nthnext rolls 2)))))))
 
 
