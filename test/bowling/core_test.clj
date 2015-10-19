@@ -15,7 +15,7 @@
   (testing "with two valid"
     (is (true? (is-valid? '(1 2)))))
   (testing "with one valid and another invalid"
-    (is (true? (is-valid? '(4 -2)))))
+    (is (false? (is-valid? '(4 -2)))))
   (testing "with two rolls that add up to more than 10"
     (is (false? (is-valid? '(6 7)))))
   (testing "with perfect game"
@@ -120,5 +120,9 @@
   (testing "with strike, with full 11th"
     (is (true? (game-over? (build-frames 0
                              '(0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 10 0 0))))))
+  (testing "with strike, strike, strike"
+    (is (true? (game-over?
+                 (build-frames 0
+                   '(0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 10 10 10))))))
   )
 
