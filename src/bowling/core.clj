@@ -112,21 +112,24 @@
   "Builds a sequence of frames from a sequence of rolls.
 
   Args:
+    prev-score: The total score of the previous frame.
     rolls: A sequence of integers representing rolls.  It is assumed the
         sequence is valid as given by |is-valid?|.
   Returns:
     A sequence of Frame structures.  The list will be at most 11 frames.
     An 11th frame is retured only if the 10th is a spare or strike.
   "
-  [rolls]
+  [prev-score rolls]
   (if (empty? rolls)
     ()
-    (let [froll (first rolls), fscore (frame-score rolls)]
+    (let [froll (first rolls),
+          fscore (frame-score rolls),
+          score (+ prev-score fscore)]
       (if (= froll 10)
-        (cons (struct Frame froll nil fscore)
-              (build-frames (next rolls)))
-        (cons (struct Frame froll (nth rolls 1 nil) fscore)
-              (build-frames (nthnext rolls 2)))))))
+        (cons (struct Frame froll nil score)
+              (build-frames score (next rolls)))
+        (cons (struct Frame froll (nth rolls 1 nil) score)
+              (build-frames score (nthnext rolls 2)))))))
 
 
 (defn- print-frame
@@ -152,7 +155,7 @@
         sequence is valid as given by |is-valid?|.
   "
   [rolls]
-  (let [frames (build-frames rolls)]
+  (let [frames (build-frames 0 rolls)]
     (print "\n|")
     (dorun (map #(printf "%-4d|" (inc %)) (range (count frames))))
 
@@ -206,6 +209,6 @@
           (println line "is an invalid roll.  Please try again.\n")))
       ; Calling |build-frames| below is inefficent, as it's already called
       ; inside of |print-frames|.  Should have a way to reuse that.
-      (and line (not (game-over? (build-frames *rolls*))))))
+      (and line (not (game-over? (build-frames 0 *rolls*))))))
   (println "Great game!\n"))
 
