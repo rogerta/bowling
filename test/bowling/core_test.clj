@@ -14,6 +14,8 @@
     (is (false? (is-valid? '(-1)))))
   (testing "with two valid"
     (is (true? (is-valid? '(1 2)))))
+  (testing "with one valid and another invalid"
+    (is (true? (is-valid? '(4 -2)))))
   (testing "with two rolls that add up to more than 10"
     (is (false? (is-valid? '(6 7)))))
   (testing "with perfect game"

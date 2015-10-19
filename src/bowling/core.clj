@@ -36,7 +36,9 @@
       (= c 0) true  ; the list is empty, this is valid
       (= c 1) (validate (first rolls))  ; one roll
       (= (first rolls) 10) (is-valid? (next rolls))
-      (validate (apply + (take 2 rolls))) (is-valid? (nthnext rolls 2))
+      (let [f-s (take 2 rolls), [f s] f-s]
+          (and (validate f) (validate s) (validate (apply + f-s))))
+        (is-valid? (nthnext rolls 2))
       :else false)))
 
 
