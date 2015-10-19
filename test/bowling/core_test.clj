@@ -97,15 +97,21 @@
   (testing "with regular last frame"
     (is (true? (game-over? (build-frames
                               '(0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 2))))))
-  (testing "with spake, no 11th"
+  (testing "with spare, no 11th"
     (is (false? (game-over? (build-frames
                                '(0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 3 7))))))
-  (testing "with spake, with partial 11th"
+  (testing "with 9 spares, partial 10th"
+    (is (false? (game-over? (build-frames
+                               '(5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5))))))
+  (testing "with spare, with partial 11th"
     (is (true? (game-over? (build-frames
                               '(0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 3 7 0))))))
   (testing "with strike, no 11th"
     (is (false? (game-over? (build-frames
                               '(0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 10))))))
+  (testing "with 9 strikes, partial 10th"
+    (is (false? (game-over? (build-frames
+                               '(10 10 10 10 10 10 10 10 10 5))))))
   (testing "with strike, with partial 11th"
     (is (false? (game-over? (build-frames
                               '(0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 10 0))))))

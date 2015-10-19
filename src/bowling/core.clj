@@ -11,6 +11,7 @@
 ; frame or a strike.
 ; :score represents the total score for game at this frame.  It can have a
 ; value from 0 to 300.
+; TODO(rogerta): should probably change this over to records.
 (defstruct Frame :first-pins :second-pins :score)
 
 
@@ -62,9 +63,10 @@
       (= c 10)
         (let [last-frame (last frames),
               {f :first-pins s :second-pins} last-frame,
+              is-partial (= s nil),
               is-strike (= f 10),
-              is-spare (and (not= s nil) (= (+ f s) 10))]
-          (if (or is-strike is-spare)
+              is-spare (and (not is-partial) (= (+ f s) 10))]
+          (if (or is-partial is-strike is-spare)
             false
             (not= s 0)))
       :else
@@ -125,7 +127,22 @@
               (build-frames (nthnext rolls 2)))))))
 
 
-(defn print-frames
+(defn- print-frame
+  "Prints the output for one frame.  Helper function for print-frames."
+  [frame]
+  (let [{f :first-pins s :second-pins} frame,
+         is-strike (= f 10),
+         is-spare (and (not= s nil) (= (+ f s) 10))]
+    (cond
+      is-strike (printf "   X|")
+      is-spare (printf "%d  /|" f)
+      :else
+        (if (= s nil)
+          (printf "%d   |" f)
+          (printf "%d  %d|" f s)))))
+
+
+(defn- print-frames
   "Prints frames for the game.
 
   Args:
@@ -134,12 +151,18 @@
   "
   [rolls]
   (let [frames (build-frames rolls)]
-    (println)
-    (dorun (map #(printf "%-4d|" %) (range (count frames))))
-    (println)
-    (dorun (map #(printf "%d  %d|" (:first-pins %) (:second-pins %)) frames))
-    (println)
-    (dorun (map #(printf "%3d |" (:score %)) frames))
+    (println) (print "|")
+    (dorun (map #(printf "%-4d|" (inc %)) (range (count frames))))
+
+    (println) (print "+")
+    (dorun (map #(printf "----+" (inc %)) (range (count frames))))
+
+    (println) (print "|")
+    (dorun (map print-frame frames))
+
+    (println) (print "|")
+    (dorun (map #(printf " %3d|" (:score %)) frames))
+
     (println)
     (println)))
 
@@ -164,5 +187,9 @@
         (if line
           (println roll "is an invalid roll.  Please try again.")
           (println)))
-      line)))
+      ; This is inefficient, as |build-frames| is already called inside of
+      ; |print-frames|.  Should have a way to reuse that.
+      (and line (not (game-over? (build-frames *rolls*))))))
+  (println "Great game!")
+  (println))
 
