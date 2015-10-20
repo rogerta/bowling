@@ -20,9 +20,10 @@ Finally clone the repository and test it:
     $ git clone git@github.com:rogerta/bowling.git
     $ cd bowling
     $ lein test
+
     lein test bowling.core-test
 
-    Ran 4 tests containing 41 assertions.
+    Ran 4 tests containing 42 assertions.
     0 failures, 0 errors.
 
 If you see the message above you're good to go.
