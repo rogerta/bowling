@@ -62,25 +62,19 @@
   (let [c (count frames)]
     (cond
       (< c 10) false
-      (= c 10)
-        (let [last-frame (last frames),
-              {f :first-pins s :second-pins} last-frame,
+      :else
+        (let [tail (nthnext frames 9)
+              ctail (count tail)
+              tenth-frame (first tail)
+              {f :first-pins s :second-pins} tenth-frame,
               is-partial (= s nil),
               is-strike (= f 10),
               is-spare (and (not is-partial) (= (+ f s) 10))]
-          (if (or is-partial is-strike is-spare)
-            false
-            (not= s 0)))
-      :else
-        (let [[second-last-frame last-frame] (take-last 2 frames),
-              {sl-f :first-pins sl-s :second-pins} second-last-frame,
-              is-strike (= sl-f 10),
-              is-spare (and (not= sl-s nil) (= (+ sl-f sl-s) 10))
-              {f :first-pins s :second-pins} last-frame]
           (cond
-            is-strike (not= s nil)
-            is-spare true
-            :else true)))))  ; in theory, should never get to this line.
+            is-spare (> ctail 1)
+            is-strike (or (not= (:second-pins (second tail)) nil) (> ctail 2))
+            is-partial false
+            :else true)))))
 
 
 (defn frame-score
