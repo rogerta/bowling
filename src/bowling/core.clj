@@ -36,8 +36,8 @@
       (= c 0) true  ; the list is empty, this is valid
       (= c 1) (validate (first rolls))  ; one roll
       (= (first rolls) 10) (is-valid? (next rolls))
-      (let [f-s (take 2 rolls), [f s] f-s]
-          (and (validate f) (validate s) (validate (apply + f-s))))
+      (let [[f s] (take 2 rolls)]
+          (and (validate f) (validate s) (validate (+ f s))))
         (is-valid? (nthnext rolls 2))
       :else false)))
 
@@ -130,8 +130,8 @@
   "Prints the output for one frame.  Helper function for print-frames."
   [frame]
   (let [{f :first-pins s :second-pins} frame,
-         is-strike (= f 10),
-         is-spare (and (not= s nil) (= (+ f s) 10))]
+        is-strike (= f 10),
+        is-spare (and (not= s nil) (= (+ f s) 10))]
     (cond
       is-strike (printf "   X|")
       is-spare (printf "%d  /|" f)
@@ -149,12 +149,13 @@
         sequence is valid as given by |is-valid?|.
   "
   [rolls]
-  (let [frames (build-frames 0 rolls)]
+  (let [frames (build-frames 0 rolls),
+        count (min 10 (count frames))]
     (print "\n|")
-    (dorun (map #(printf "%-4d|" (inc %)) (range (min 10 (count frames)))))
+    (dorun (map #(printf "%-4d|" (inc %)) (range count)))
 
     (print "\n+")
-    (dorun (map #(printf "----+" (inc %)) (range (min 10 (count frames)))))
+    (dorun (map #(printf "----+" (inc %)) (range count)))
 
     (print "\n|")
     (dorun (map print-frame frames))
