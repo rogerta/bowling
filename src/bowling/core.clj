@@ -187,7 +187,7 @@
       (catch Exception e (hash-map :roll -1, :line line)))))
 
 
-(def ^:dynamic *rolls* [])
+(def *rolls* (atom []))
 
 (defn -main
   "Bowling score keeper."
@@ -195,15 +195,15 @@
   (println "Welcome to the bowling score keeper.\n")
   (while
     (let [{roll :roll line :line} (read-roll),
-          new-rolls (conj *rolls* roll)]
+          new-rolls (conj @*rolls* roll)]
       (if (is-valid? new-rolls)
         (do
-          (def ^:dynamic *rolls* new-rolls)
-          (print-frames *rolls*))
+          (swap! *rolls* (fn [_ n] n) new-rolls)
+          (print-frames @*rolls*))
         (if line
           (println line "is an invalid roll.  Please try again.\n")))
       ; Calling |build-frames| below is inefficent, as it's already called
       ; inside of |print-frames|.  Should have a way to reuse that.
-      (and line (not (game-over? (build-frames 0 *rolls*))))))
+      (and line (not (game-over? (build-frames 0 @*rolls*))))))
   (println "Great game!\n"))
 
